@@ -40,6 +40,7 @@ public partial class Crawler
     /// </summary>
     /// <param name="url">the URL of the webpage to retreive</param>
     /// <param name="level">the number of level to recursively access to</param>
+
     public async Task GetPage(String url, int level)
     {
         // Your code here
@@ -54,7 +55,15 @@ public partial class Crawler
         }
 
         // For simplicity, we will use <c>HttpClient</c> here, but if you want you can try <c>TcpClient</c>
-        HttpClient client = new();
+        // HttpClient client = new();
+
+        //base case
+        if (level <= 0)
+        {
+        return;
+        }
+
+    HttpClient client = new();
 
         try
         {
@@ -79,15 +88,21 @@ public partial class Crawler
                         // Your code here
                         // Note: It should be recursive operation here
 
+                        // recursive call
+                        await GetPage(link, level - 1);
+
                         // limit number of links in the page, otherwise it will load lots of data
-                        if (++count >= maxLinksPerPage) break;
+                        // if (++count >= maxLinksPerPage) break;
+
+                        if (++count >= maxLinksPerPage)
+                        break;
                     }
                 }
             }
-            else
-            {
-                Console.WriteLine("Can't load content with return status {0}", response.StatusCode);
-            }
+            // else
+            // {
+            //     Console.WriteLine("Can't load content with return status {0}", response.StatusCode);
+            // }
         }
         catch (HttpRequestException ex)
         {
@@ -126,12 +141,18 @@ public partial class Crawler
 }
 class Program
 {
-    static void Main(string[] args)
+    // static void Main(string[] args)
+    static async Task Main(string[] args)
     {
         Crawler cw = new();
-        // Can you improve this code?
+
         cw.SetBasedFolder(".");
         cw.SetMaxLinksPerPage(5);
-        cw.GetPage("https://dandadan.net/", 2).Wait();
+
+        string startUrl = "https://dandadan.net/";
+        int level = 2;
+        
+        await cw.GetPage(startUrl, level);
+        // cw.GetPage("https://dandadan.net/", 2).Wait();
     }
 }
